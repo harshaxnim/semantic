@@ -1,0 +1,64 @@
+{
+ "tasks": [
+  {
+   "task": "hanoi",
+   "description": "Tower of Hanoi; full move sequence required (2^n - 1 moves).",
+   "complexity_label": "disks",
+   "complexities": [
+    1,
+    8
+   ],
+   "references_accepted": 200,
+   "references": 200,
+   "mutants_rejected": 1600,
+   "mutants": 1600,
+   "cross_checked": 0,
+   "cross_check_disagreements": 0
+  },
+  {
+   "task": "blocksworld",
+   "description": "PlanBench-style Blocksworld plan generation; exact STRIPS simulation.",
+   "complexity_label": "blocks",
+   "complexities": [
+    2,
+    12
+   ],
+   "references_accepted": 275,
+   "references": 275,
+   "mutants_rejected": 2200,
+   "mutants": 2200,
+   "cross_checked": 2200,
+   "cross_check_disagreements": 0
+  },
+  {
+   "task": "blocksworld-mystery",
+   "description": "Blocksworld with obfuscated action/predicate names (PlanBench 'Mystery').",
+   "complexity_label": "blocks",
+   "complexities": [
+    2,
+    12
+   ],
+   "references_accepted": 275,
+   "references": 275,
+   "mutants_rejected": 2200,
+   "mutants": 2200,
+   "cross_checked": 2200,
+   "cross_check_disagreements": 0
+  },
+  {
+   "task": "multiplication",
+   "description": "n-digit x n-digit multiplication (Faith and Fate); exact answer.",
+   "complexity_label": "digits",
+   "complexities": [
+    1,
+    12
+   ],
+   "references_accepted": 300,
+   "references": 300,
+   "mutants_rejected": 2400,
+   "mutants": 2400,
+   "cross_checked": 0,
+   "cross_check_disagreements": 0
+  }
+ ]
+}
