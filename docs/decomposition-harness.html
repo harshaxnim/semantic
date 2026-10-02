@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semantic Decomposition Harness</title>
+<meta name="description" content="Thesis, architecture, benchmark selection and game plan for a self-organizing swarm of cheap models that solves long-horizon problems by decomposing them along many lenses.">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --border: #dedcd5;
+  --text: #16161a;
+  --text-2: #52514e;
+  --text-3: #7a7974;
+  --accent: #2a78d6;
+  --accent-soft: #e3eefb;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --s4: #eda100;
+  --s7: #4a3aa7;
+  --grid: #e6e4de;
+  --good: #1d8a4a;
+  --warn: #b77700;
+  --crit: #c93b3a;
+  --code: #efeee9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --border: #353532;
+    --text: #f4f3ef;
+    --text-2: #c3c2b7;
+    --text-3: #908f87;
+    --accent: #3987e5;
+    --accent-soft: #1b2a3d;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --s4: #c98500;
+    --s7: #9085e9;
+    --grid: #2c2c2a;
+    --good: #3fb36d;
+    --warn: #e0a42a;
+    --crit: #e66767;
+    --code: #262624;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211;
+  --surface: #1a1a19;
+  --surface-2: #232321;
+  --border: #353532;
+  --text: #f4f3ef;
+  --text-2: #c3c2b7;
+  --text-3: #908f87;
+  --accent: #3987e5;
+  --accent-soft: #1b2a3d;
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --s4: #c98500;
+  --s7: #9085e9;
+  --grid: #2c2c2a;
+  --good: #3fb36d;
+  --warn: #e0a42a;
+  --crit: #e66767;
+  --code: #262624;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 96px; }
+header.hero { padding: 64px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 0 0 12px; }
+h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.1; margin: 0 0 16px; letter-spacing: -.02em; }
+h2 { font-size: 26px; line-height: 1.2; margin: 64px 0 8px; letter-spacing: -.01em; }
+h3 { font-size: 18px; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+.lede { font-size: 19px; color: var(--text-2); max-width: 760px; }
+.sub { color: var(--text-2); max-width: 760px; }
+.muted { color: var(--text-3); }
+a { color: var(--accent); }
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9em; }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; }
+
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 20px 0 0; font-size: 14px; }
+nav.toc a { color: var(--text-2); text-decoration: none; border-bottom: 1px dotted var(--text-3); }
+nav.toc a:hover { color: var(--accent); }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+.thesis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 28px; }
+.thesis .card h3 { margin-top: 0; font-size: 16px; }
+.thesis .num { font-size: 13px; color: var(--accent); font-weight: 600; letter-spacing: .04em; }
+
+.lens h3 { margin: 0 0 4px; font-size: 16px; }
+.lens .math { font-size: 13px; color: var(--text-3); margin-bottom: 8px; }
+.lens p { font-size: 14.5px; color: var(--text-2); margin: 0; }
+.lens .tag { display: inline-block; font-size: 12px; margin-top: 10px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); }
+
+figure { margin: 22px 0; }
+figure .frame { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; overflow: hidden; }
+figcaption { font-size: 14px; color: var(--text-3); margin-top: 8px; max-width: 760px; }
+svg text { font-family: inherit; }
+.diagram { width: 100%; height: auto; display: block; }
+.d-box { fill: var(--surface-2); stroke: var(--border); }
+.d-box-acc { fill: var(--accent-soft); stroke: var(--accent); }
+.d-t { fill: var(--text); font-size: 13px; }
+.d-t2 { fill: var(--text-2); font-size: 11.5px; }
+.d-t3 { fill: var(--text-3); font-size: 11px; }
+.d-line { stroke: var(--text-3); stroke-width: 1.5; fill: none; }
+.d-line-acc { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.d-dash { stroke-dasharray: 4 4; }
+
+/* chart */
+.controls { display: grid; gap: 12px 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 12px; }
+.controls label { font-size: 13px; color: var(--text-2); display: block; }
+.controls output { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.controls input[type=range] { width: 100%; accent-color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--text-2); margin: 4px 0 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+#chart { width: 100%; height: 320px; display: block; touch-action: none; }
+.ax { stroke: var(--grid); stroke-width: 1; }
+.ax-t { fill: var(--text-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+.readout { font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; min-height: 20px; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; color: var(--text); box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tip i { width: 10px; height: 3px; display: inline-block; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 760px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); background: var(--surface-2); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.b { font-weight: 600; white-space: nowrap; }
+td .muted { font-size: 13px; }
+.tier { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.t-core { background: var(--accent-soft); color: var(--accent); }
+.t-sec { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+.t-str { background: transparent; color: var(--text-3); border: 1px dashed var(--border); }
+
+.pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); margin: 2px 4px 2px 0; }
+
+/* phases */
+.phases { position: relative; display: grid; gap: 14px; }
+.phase { display: grid; grid-template-columns: 92px 1fr; gap: 16px; }
+.phase .when { font-size: 13px; color: var(--text-3); padding-top: 22px; text-align: right; font-variant-numeric: tabular-nums; }
+.phase .card h3 { margin-top: 0; font-size: 16px; }
+.phase ul { margin: 6px 0 0; padding-left: 18px; color: var(--text-2); font-size: 14.5px; }
+.exit { margin-top: 10px; font-size: 13.5px; border-left: 3px solid var(--good); padding: 4px 10px; background: var(--surface-2); border-radius: 0 6px 6px 0; }
+@media (max-width: 560px) {
+  .phase { grid-template-columns: 1fr; gap: 4px; }
+  .phase .when { text-align: left; padding-top: 0; }
+}
+
+ul.tight { padding-left: 20px; margin: 6px 0 14px; }
+ul.tight li { margin: 4px 0; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 14px 18px; border-radius: 0 10px 10px 0; margin: 18px 0; color: var(--text-2); }
+.callout b { color: var(--text); }
+pre { background: var(--code); padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Project semantic · design note v0.1 · Oct 2026</p>
+  <h1>Many cheap minds, many lenses:<br>a harness for decomposing hard problems</h1>
+  <p class="lede">Finite elements break a continuum into small solvable cells. A Taylor series turns a hard function into a sum of easy terms. We want the same move for reasoning: look at a problem through many decomposition lenses, solve the small pieces with cheap models, check each piece locally, and compose the results back into an answer. The work is organized by a swarm that builds and explores a shared graph of constraints and partial solutions.</p>
+  <nav class="toc">
+    <a href="#thesis">Thesis</a>
+    <a href="#math">Why it should work</a>
+    <a href="#lenses">Decomposition lenses</a>
+    <a href="#arch">Architecture</a>
+    <a href="#graph">Problem graph</a>
+    <a href="#swarm">Self-organization</a>
+    <a href="#bench">Benchmarks</a>
+    <a href="#exp">Experimental design</a>
+    <a href="#plan">Game plan</a>
+    <a href="#risks">Risks</a>
+  </nav>
+</header>
+
+<section id="thesis">
+  <h2>The thesis in four claims</h2>
+  <p class="sub">Each claim can be proven wrong on its own, and the benchmark suite is built to test each one separately.</p>
+  <div class="thesis">
+    <div class="card"><div class="num">C1 · COMPOUNDING</div><h3>Long chains fail because errors compound</h3><p class="muted">A single model reasoning n steps at per-step reliability p succeeds about p<sup>n</sup> of the time. That curve falls off a cliff, which is what the "LLMs can't plan" and "illusion of thinking" results show as problems get harder.</p></div>
+    <div class="card"><div class="num">C2 · LOCALITY</div><h3>Small pieces can be checked locally</h3><p class="muted">When a problem is cut into pieces with explicit interfaces (pre-conditions, post-conditions, constraints), each piece can be verified on its own and retried. Errors stop spreading through the chain, so depth costs far less.</p></div>
+    <div class="card"><div class="num">C3 · DIVERSITY</div><h3>No single decomposition works for every problem</h3><p class="muted">Divide-and-conquer, constraint propagation, abstraction and refinement, change of basis: each lens makes some problems easy and others no easier. Running several lenses at once and letting them disagree is cheap insurance.</p></div>
+    <div class="card"><div class="num">C4 · ECONOMICS</div><h3>Cheap models are good enough at the leaves</h3><p class="muted">If the leaves are small enough, a model costing about 1/50 as much as a frontier model solves them reliably. Intelligence then comes from the structure: search, verification, composition and selection.</p></div>
+  </div>
+</section>
+
+<section id="math">
+  <h2>Why it should work: local verification beats global retries</h2>
+  <p class="sub">A toy model of claims C1 and C2. Three ways to spend about the same compute on a task that needs <i>n</i> correct steps:</p>
+  <ul class="tight sub">
+    <li><b style="color:var(--s1)">Monolithic chain:</b> one pass, success = p<sup>n</sup>.</li>
+    <li><b style="color:var(--s2)">Global best-of-k:</b> sample k whole chains and assume a <i>perfect</i> final checker picks a correct one if any exists: 1 − (1 − p<sup>n</sup>)<sup>k</sup>.</li>
+    <li><b style="color:var(--s3)">Decomposed + local verifier:</b> each step is retried up to k times until an imperfect verifier (recall r, specificity q) accepts it. A false accept lets an error through.</li>
+  </ul>
+  <figure>
+    <div class="frame" style="position:relative">
+      <div class="controls">
+        <label>Per-step reliability p = <output id="o-p"></output><input id="p" type="range" min="0.80" max="0.995" step="0.005" value="0.95"></label>
+        <label>Attempts per unit k = <output id="o-k"></output><input id="k" type="range" min="1" max="16" step="1" value="4"></label>
+        <label>Verifier recall r = <output id="o-r"></output><input id="r" type="range" min="0.5" max="1" step="0.01" value="0.9"></label>
+        <label>Verifier specificity q = <output id="o-q"></output><input id="q" type="range" min="0.5" max="1" step="0.01" value="0.9"></label>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--s1)"></i>Monolithic chain</span>
+        <span><i style="background:var(--s2)"></i>Global best-of-k (perfect checker)</span>
+        <span><i style="background:var(--s3)"></i>Decomposed + local verifier</span>
+      </div>
+      <svg id="chart" role="img" aria-label="Probability of solving the whole task versus number of required steps, for three strategies"></svg>
+      <div class="tip" id="tip"></div>
+      <div class="readout" id="readout"></div>
+    </div>
+    <figcaption>Probability of solving the whole task (y) vs. number of required correct steps (x, 1–200). Hover or drag for exact values. With p = 0.95 and k = 4, even a <i>perfect</i> global checker falls below 10% by around n = 70, while a mediocre local verifier still succeeds more than half the time at n = 100. This is a toy model with independent errors. Real errors are correlated, which is why claim C3 (diverse lenses and models) matters.</figcaption>
+  </figure>
+  <div class="callout"><b>The key quantity is the verifier's false-accept rate (1 − q), not the solver's accuracy.</b> Moving q from 0.9 to 0.99 matters more than moving p from 0.90 to 0.95. This shapes the whole design: we spend effort making pieces <i>checkable</i> (formal post-conditions, executable checks, cross-lens agreement) before making solvers smarter.</div>
+</section>
+
+<section id="lenses">
+  <h2>Decomposition lenses</h2>
+  <p class="sub">A lens is a strategy that turns one problem into a graph of smaller problems plus a <b>composition rule</b> for joining their answers. Each lens borrows a structure from mathematics or engineering. The harness starts with a fixed library and later lets agents propose new lenses (phase 4).</p>
+  <div class="grid g3" style="margin-top:20px">
+    <div class="card lens"><h3>Divide &amp; conquer / FEM</h3><div class="math">Ω = ⋃ Ωᵢ, glue on shared boundaries</div><p>Split the state or space into regions that interact only through interfaces. Solve each region, then reconcile the boundary conditions.</p><span class="tag">Compose: boundary reconciliation</span></div>
+    <div class="card lens"><h3>Series expansion</h3><div class="math">f ≈ f₀ + εf₁ + ε²f₂ + …</div><p>Solve a simplified core problem first, then add corrections for each relaxed constraint in order of importance until the residual is zero.</p><span class="tag">Compose: additive refinement</span></div>
+    <div class="card lens"><h3>Abstraction / refinement (HTN)</h3><div class="math">plan at level L, refine to L−1</div><p>Make a coarse plan of macro-actions, then expand each one. This matches hierarchical task networks and is the main lens for planning benchmarks.</p><span class="tag">Compose: substitution</span></div>
+    <div class="card lens"><h3>Constraint propagation</h3><div class="math">domains Dᵢ ← Dᵢ ∩ consistent(Cⱼ)</div><p>Extract the constraints explicitly and let cheap agents prune domains in parallel. This works best on puzzles like Zebra and Sudoku, and on scheduling.</p><span class="tag">Compose: intersection / arc-consistency</span></div>
+    <div class="card lens"><h3>Dynamic programming</h3><div class="math">V(s) = opt over a of [ c(s,a) + V(s′) ]</div><p>Find overlapping subproblems, solve and memoize each once, and build answers bottom-up. Multi-digit arithmetic and sequence alignment fit here.</p><span class="tag">Compose: recurrence</span></div>
+    <div class="card lens"><h3>Backward chaining</h3><div class="math">goal ⇐ subgoals ⇐ … ⇐ facts</div><p>Start from what must be true at the end and regress through preconditions. Multi-hop QA becomes a chain of single-hop lookups with checkable bridge entities.</p><span class="tag">Compose: proof tree</span></div>
+    <div class="card lens"><h3>Change of basis</h3><div class="math">solve in T(x), map back with T⁻¹</div><p>Re-represent the problem as a graph, an equation system, code, a table or a known puzzle class, so that it becomes routine. For example, Mystery Blocksworld is Blocksworld under renaming.</p><span class="tag">Compose: inverse transform</span></div>
+    <div class="card lens"><h3>Invariants &amp; symmetry</h3><div class="math">find I with I(s) = I(s′) under all moves</div><p>Find quantities that must be preserved, or symmetries that collapse the search. These are cheap to check and often prove a problem unsolvable fast.</p><span class="tag">Compose: quotient / pruning</span></div>
+    <div class="card lens"><h3>Sampling &amp; bounding</h3><div class="math">upper/lower bounds, Monte Carlo</div><p>Estimate the answer roughly or bound it before solving it exactly. Bounds act as verifiers for other lenses' candidate answers.</p><span class="tag">Compose: bracket tightening</span></div>
+  </div>
+</section>
+
+<section id="arch">
+  <h2>Architecture</h2>
+  <p class="sub">The design is a blackboard system. Agents never call each other directly. They read from and write to a shared <b>problem graph</b>, and a scheduler decides which work is worth funding next. This loose coupling is what lets the system organize itself.</p>
+  <figure>
+    <div class="frame">
+      <svg class="diagram" viewBox="0 0 960 490" role="img" aria-label="Architecture: problem goes to lens proposers, which write into a shared problem graph; solver, verifier and composer swarms work on the graph; a scheduler allocates budget; the answer is extracted and a final verifier checks it; outcomes feed a lens library">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-3)"/></marker>
+          <marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+        </defs>
+        <!-- input -->
+        <rect class="d-box" x="20" y="190" width="130" height="70" rx="10"/>
+        <text class="d-t" x="85" y="220" text-anchor="middle">Problem</text>
+        <text class="d-t3" x="85" y="238" text-anchor="middle">text + optional</text>
+        <text class="d-t3" x="85" y="252" text-anchor="middle">formal spec</text>
+        <!-- formalizer -->
+        <rect class="d-box" x="190" y="60" width="160" height="70" rx="10"/>
+        <text class="d-t" x="270" y="90" text-anchor="middle">Formalizers</text>
+        <text class="d-t3" x="270" y="108" text-anchor="middle">extract goals, constraints,</text>
+        <text class="d-t3" x="270" y="122" text-anchor="middle">entities, checkable facts</text>
+        <!-- lens proposers -->
+        <rect class="d-box" x="190" y="320" width="160" height="70" rx="10"/>
+        <text class="d-t" x="270" y="350" text-anchor="middle">Lens proposers</text>
+        <text class="d-t3" x="270" y="368" text-anchor="middle">k lenses × m models</text>
+        <text class="d-t3" x="270" y="382" text-anchor="middle">→ candidate decompositions</text>
+        <!-- graph -->
+        <rect class="d-box-acc" x="400" y="140" width="220" height="170" rx="14"/>
+        <text class="d-t" x="510" y="166" text-anchor="middle" font-weight="600">Problem graph (blackboard)</text>
+        <circle cx="450" cy="205" r="9" fill="var(--s1)"/><circle cx="500" cy="195" r="9" fill="var(--s2)"/>
+        <circle cx="560" cy="210" r="9" fill="var(--s1)"/><circle cx="470" cy="255" r="9" fill="var(--s3)"/>
+        <circle cx="530" cy="260" r="9" fill="var(--s3)"/><circle cx="585" cy="265" r="9" fill="var(--s4)"/>
+        <path class="d-line" d="M450 205 L500 195 L560 210 M450 205 L470 255 M500 195 L530 260 M560 210 L585 265 M470 255 L530 260"/>
+        <text class="d-t3" x="510" y="296" text-anchor="middle">typed nodes + edges</text>
+        <!-- swarms -->
+        <rect class="d-box" x="670" y="40" width="170" height="60" rx="10"/>
+        <text class="d-t" x="755" y="66" text-anchor="middle">Solver swarm</text>
+        <text class="d-t3" x="755" y="84" text-anchor="middle">cheap models on leaves</text>
+        <rect class="d-box" x="670" y="125" width="170" height="60" rx="10"/>
+        <text class="d-t" x="755" y="151" text-anchor="middle">Verifier swarm</text>
+        <text class="d-t3" x="755" y="169" text-anchor="middle">code · solvers · cross-lens</text>
+        <rect class="d-box" x="670" y="210" width="170" height="60" rx="10"/>
+        <text class="d-t" x="755" y="236" text-anchor="middle">Composers</text>
+        <text class="d-t3" x="755" y="254" text-anchor="middle">apply composition rules</text>
+        <rect class="d-box" x="670" y="295" width="170" height="60" rx="10"/>
+        <text class="d-t" x="755" y="321" text-anchor="middle">Critics / explorers</text>
+        <text class="d-t3" x="755" y="339" text-anchor="middle">find conflicts, re-split</text>
+        <!-- scheduler -->
+        <rect class="d-box" x="400" y="390" width="220" height="62" rx="10"/>
+        <text class="d-t" x="510" y="416" text-anchor="middle">Scheduler / economy</text>
+        <text class="d-t3" x="510" y="434" text-anchor="middle">bandit over lenses, token budget</text>
+        <!-- output -->
+        <rect class="d-box-acc" x="860" y="190" width="84" height="70" rx="10"/>
+        <text class="d-t" x="902" y="222" text-anchor="middle">Answer</text>
+        <text class="d-t3" x="902" y="240" text-anchor="middle">+ trace</text>
+        <!-- lens library -->
+        <rect class="d-box" x="670" y="390" width="170" height="62" rx="10"/>
+        <text class="d-t" x="755" y="416" text-anchor="middle">Lens library</text>
+        <text class="d-t3" x="755" y="434" text-anchor="middle">evolves across problems</text>
+        <!-- edges -->
+        <path class="d-line" marker-end="url(#ar)" d="M150 215 C170 160 175 110 188 100"/>
+        <path class="d-line" marker-end="url(#ar)" d="M150 235 C170 290 175 340 188 352"/>
+        <path class="d-line" marker-end="url(#ar)" d="M350 100 C380 110 390 160 398 180"/>
+        <path class="d-line" marker-end="url(#ar)" d="M350 352 C380 340 390 300 398 285"/>
+        <path class="d-line-acc" marker-end="url(#ara)" marker-start="url(#ara)" d="M622 180 L668 75"/>
+        <path class="d-line-acc" marker-end="url(#ara)" marker-start="url(#ara)" d="M622 200 L668 155"/>
+        <path class="d-line-acc" marker-end="url(#ara)" marker-start="url(#ara)" d="M622 240 L668 240"/>
+        <path class="d-line-acc" marker-end="url(#ara)" marker-start="url(#ara)" d="M622 275 L668 322"/>
+        <path class="d-line" marker-end="url(#ar)" d="M510 388 L510 312"/>
+        <path class="d-line" marker-end="url(#ar)" d="M840 240 L858 228"/>
+        <path class="d-line d-dash" marker-end="url(#ar)" d="M902 262 C902 420 870 421 842 421"/>
+        <path class="d-line d-dash" marker-end="url(#ar)" d="M668 421 L622 421"/>
+        <path class="d-line d-dash" marker-end="url(#ar)" d="M700 452 C600 470 300 470 270 392"/>
+        <text class="d-t3" x="912" y="330" text-anchor="end">outcomes</text>
+        <text class="d-t3" x="440" y="484">priors over lenses</text>
+      </svg>
+    </div>
+    <figcaption>Solid arrows show the flow within one problem. Blue double arrows mean the swarms read and write the shared graph. Dashed arrows show learning across problems: which lenses paid off on which problem types goes back into the scheduler's priors.</figcaption>
+  </figure>
+  <div class="grid g2">
+    <div class="card"><h3 style="margin-top:0">Design principles</h3>
+      <ul class="tight muted">
+        <li><b>Checkability first.</b> A subproblem is only accepted onto the graph if it carries a verification contract: an executable check, a formal post-condition, or a "two independent lenses must agree" rule.</li>
+        <li><b>Verifiers outside the model where possible.</b> Use PDDL validators (VAL), SAT/SMT solvers, Python execution and unit checks. This follows Kambhampati's LLM-Modulo idea: models generate, sound critics check.</li>
+        <li><b>Diversity is a resource.</b> Use different model families, prompts and lenses, so that errors are less correlated and votes mean something.</li>
+        <li><b>Everything is a trace.</b> Every node records who made it, at what cost, and how it was verified. Traces become training data later.</li>
+      </ul>
+    </div>
+    <div class="card"><h3 style="margin-top:0">Cheap model pool (initial)</h3>
+      <p class="muted" style="font-size:14.5px">Use small, fast models from several families so errors decorrelate. Examples: Claude Haiku 4.5, Gemini Flash-class models, GPT mini-class models, and open-weight 7–32B models (Qwen, Llama, Mistral, DeepSeek distills) served locally through vLLM for near-zero marginal cost.</p>
+      <p class="muted" style="font-size:14.5px">The <b>ceiling reference</b> is a frontier reasoning model run alone. The headline claim is <i>matching or beating it at a fraction of the cost</i>, or <i>beating it at high complexity</i> where it collapses.</p>
+    </div>
+  </div>
+</section>
+
+<section id="graph">
+  <h2>The problem graph</h2>
+  <p class="sub">The graph is the central data structure. Nodes are typed so that agents can find work by pattern-matching: for example, "a Subproblem with no accepted Candidate" or "two Candidates that Contradict."</p>
+  <figure>
+    <div class="frame">
+      <svg class="diagram" viewBox="0 0 960 330" role="img" aria-label="Example problem graph: a goal decomposes via two lenses into subproblems with constraints; candidates are verified and composed; a contradiction edge triggers re-splitting">
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-3)"/></marker>
+        </defs>
+        <!-- goal -->
+        <rect x="400" y="14" width="160" height="40" rx="20" fill="var(--s1)"/>
+        <text x="480" y="39" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Goal G</text>
+        <!-- lenses -->
+        <rect class="d-box" x="190" y="86" width="190" height="34" rx="8"/>
+        <text class="d-t2" x="285" y="108" text-anchor="middle">Lens: abstraction / HTN</text>
+        <rect class="d-box" x="580" y="86" width="190" height="34" rx="8"/>
+        <text class="d-t2" x="675" y="108" text-anchor="middle">Lens: constraint propagation</text>
+        <path class="d-line" marker-end="url(#ar2)" d="M440 54 L320 84"/>
+        <path class="d-line" marker-end="url(#ar2)" d="M520 54 L640 84"/>
+        <!-- subproblems -->
+        <g>
+          <rect x="70" y="160" width="120" height="36" rx="8" fill="none" stroke="var(--s2)" stroke-width="2"/>
+          <text class="d-t" x="130" y="183" text-anchor="middle">Sub S1</text>
+          <rect x="225" y="160" width="120" height="36" rx="8" fill="none" stroke="var(--s2)" stroke-width="2"/>
+          <text class="d-t" x="285" y="183" text-anchor="middle">Sub S2</text>
+          <rect x="380" y="160" width="120" height="36" rx="8" fill="none" stroke="var(--s2)" stroke-width="2"/>
+          <text class="d-t" x="440" y="183" text-anchor="middle">Sub S3</text>
+          <rect x="610" y="160" width="130" height="36" rx="8" fill="none" stroke="var(--s4)" stroke-width="2" stroke-dasharray="5 3"/>
+          <text class="d-t" x="675" y="183" text-anchor="middle">Constraint C1</text>
+          <rect x="770" y="160" width="130" height="36" rx="8" fill="none" stroke="var(--s4)" stroke-width="2" stroke-dasharray="5 3"/>
+          <text class="d-t" x="835" y="183" text-anchor="middle">Constraint C2</text>
+        </g>
+        <path class="d-line" marker-end="url(#ar2)" d="M250 120 L140 158"/>
+        <path class="d-line" marker-end="url(#ar2)" d="M285 120 L285 158"/>
+        <path class="d-line" marker-end="url(#ar2)" d="M320 120 L430 158"/>
+        <path class="d-line" marker-end="url(#ar2)" d="M660 120 L670 158"/>
+        <path class="d-line" marker-end="url(#ar2)" d="M700 120 L820 158"/>
+        <!-- constrains edges -->
+        <path stroke="var(--s4)" stroke-width="1.5" fill="none" stroke-dasharray="3 3" d="M610 178 C560 178 540 178 502 178"/>
+        <text class="d-t3" x="556" y="170" text-anchor="middle">constrains</text>
+        <!-- candidates -->
+        <circle cx="130" cy="246" r="16" fill="var(--s3)"/><text x="130" y="251" text-anchor="middle" fill="#fff" font-size="12">✓</text>
+        <circle cx="285" cy="246" r="16" fill="var(--s3)"/><text x="285" y="251" text-anchor="middle" fill="#fff" font-size="12">✓</text>
+        <circle cx="415" cy="246" r="16" fill="var(--crit)"/><text x="415" y="251" text-anchor="middle" fill="#fff" font-size="12">✗</text>
+        <circle cx="465" cy="246" r="16" fill="var(--s3)"/><text x="465" y="251" text-anchor="middle" fill="#fff" font-size="12">✓</text>
+        <path class="d-line" d="M130 196 L130 228 M285 196 L285 228 M430 196 L415 228 M450 196 L465 228"/>
+        <text class="d-t3" x="395" y="282" text-anchor="end">violates C1</text>
+        <!-- compose -->
+        <rect class="d-box-acc" x="210" y="292" width="300" height="30" rx="8"/>
+        <text class="d-t2" x="360" y="312" text-anchor="middle">Compose(S1,S2,S3) → candidate for G, verified</text>
+        <path class="d-line" marker-end="url(#ar2)" d="M140 262 L240 292"/>
+        <path class="d-line" marker-end="url(#ar2)" d="M290 262 L320 292"/>
+        <path class="d-line" marker-end="url(#ar2)" d="M465 262 L440 292"/>
+        <!-- legend -->
+        <g transform="translate(610,230)">
+          <rect x="0" y="0" width="14" height="10" rx="2" fill="none" stroke="var(--s2)" stroke-width="2"/><text class="d-t3" x="22" y="10">Subproblem (has contract)</text>
+          <rect x="0" y="20" width="14" height="10" rx="2" fill="none" stroke="var(--s4)" stroke-width="2" stroke-dasharray="4 2"/><text class="d-t3" x="22" y="30">Constraint (shared across lenses)</text>
+          <circle cx="7" cy="45" r="6" fill="var(--s3)"/><text class="d-t3" x="22" y="50">Candidate, accepted by verifier</text>
+          <circle cx="7" cy="65" r="6" fill="var(--crit)"/><text class="d-t3" x="22" y="70">Candidate, rejected / contradiction</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Different lenses share constraint nodes. Here the constraint-propagation lens found C1, and C1 rejected one HTN candidate. Cross-lens checking like this is where much of the verification power comes from.</figcaption>
+  </figure>
+  <div class="tbl-wrap">
+    <table style="min-width:620px">
+      <thead><tr><th>Node type</th><th>Holds</th><th>Edge types</th></tr></thead>
+      <tbody>
+        <tr><td class="b">Goal</td><td>What counts as solved; the final checker</td><td><span class="pill">decomposes-via → Lens</span></td></tr>
+        <tr><td class="b">Lens</td><td>Strategy id, composition rule, cost so far, prior score</td><td><span class="pill">produces → Subproblem</span></td></tr>
+        <tr><td class="b">Subproblem</td><td>Statement, interface (inputs/outputs), verification contract, est. difficulty</td><td><span class="pill">depends-on</span><span class="pill">refines</span><span class="pill">same-as (cross-lens)</span></td></tr>
+        <tr><td class="b">Constraint</td><td>Formal or natural-language constraint, scope, source</td><td><span class="pill">constrains → Subproblem/Candidate</span></td></tr>
+        <tr><td class="b">Candidate</td><td>Proposed answer, author model, cost, confidence</td><td><span class="pill">answers</span><span class="pill">verified-by</span><span class="pill">contradicts</span></td></tr>
+        <tr><td class="b">Evidence</td><td>Verifier output, tool logs, counter-examples</td><td><span class="pill">supports / refutes</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="swarm">
+  <h2>How the swarm organizes itself</h2>
+  <p class="sub">There is no central planner that scripts which agent does what. Order comes from four simple mechanisms, each a separate component that can be switched off for ablation.</p>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card"><h3 style="margin-top:0">1 · Stigmergy (pheromones on the graph)</h3><p class="muted">Nodes carry signals: <i>unsolved</i>, <i>contested</i>, <i>high-value</i>, <i>stale</i>. Agents pick work by sampling nodes weighted by signal, like ants following trails. Contradictions emit strong signals that attract critics and re-splitters.</p></div>
+    <div class="card"><h3 style="margin-top:0">2 · A budget economy</h3><p class="muted">Each lens is an arm in a multi-armed bandit (UCB or Thompson sampling) over the remaining token budget. Its reward is verified progress: accepted nodes weighted by how close they are to the goal. Lenses that stall lose funding.</p></div>
+    <div class="card"><h3 style="margin-top:0">3 · Adaptive granularity</h3><p class="muted">When a leaf fails verification repeatedly, it is split further. When a subtree is solved easily, sibling subtrees are merged into bigger chunks. Each cheap model finds its own working size, much like adaptive mesh refinement in FEM.</p></div>
+    <div class="card"><h3 style="margin-top:0">4 · Evolution of lenses</h3><p class="muted">Across problems, lens prompts and composition rules are mutated and recombined, and selected on (accuracy, cost). In phase 4, "lens inventor" agents propose new decompositions written as programs, which are kept only if they pay off on held-out problems.</p></div>
+  </div>
+</section>
+
+<section id="bench">
+  <h2>Benchmarks: what we will measure and why</h2>
+  <p class="sub">The selection rule: <b>(1) a complexity knob</b> that can be turned up until single models collapse, <b>(2) an automatic sound verifier</b> so results are not judged by an LLM, and <b>(3) prior published results</b> showing frontier models degrade, so that a win means something. Kambhampati's planning work is the backbone because it meets all three criteria and makes the strongest form of the "LLMs can't plan" claim.</p>
+
+  <h3>Core suite: proves claims C1 to C4</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Benchmark</th><th>What it tests</th><th>Complexity knob</th><th>Verifier</th><th>Why it's in</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="b">PlanBench<br><span class="tier t-core">core · flagship</span></td>
+          <td>Plan generation, cost-optimal planning, plan verification, replanning. Domains: <b>Blocksworld</b>, <b>Mystery Blocksworld</b> (obfuscated names), Logistics.<br><span class="muted">Valmeekam, Kambhampati et al., NeurIPS 2023 D&amp;B</span></td>
+          <td>Number of blocks/objects; plan length. We generate larger instances with the PDDL generators.</td>
+          <td>VAL (PDDL plan validator), which is sound and exact</td>
+          <td>This is the canonical "LLMs can't plan" result. Mystery Blocksworld tests whether we <i>reason</i> or <i>retrieve</i>: the change-of-basis lens should map it back to Blocksworld. Follow-up papers report that even reasoning models (o1-class) degrade on long instances, so the long-plan regime is still open.</td>
+        </tr>
+        <tr>
+          <td class="b">"Illusion of Thinking" puzzles<br><span class="tier t-core">core</span></td>
+          <td>Tower of Hanoi, Checker Jumping, River Crossing, Blocks World, with exact move sequences required.<br><span class="muted">Shojaee et al., Apple 2025, plus rebuttals</span></td>
+          <td>N disks / pieces; the required number of moves grows up to exponentially</td>
+          <td>Simulator, which is exact</td>
+          <td>This is the cleanest view of the <b>accuracy collapse curve</b>. It shows reasoning models collapsing past a complexity threshold, even with the algorithm given. Our harness should push that threshold right. We must handle the rebuttals' points (output length limits, unsolvable instances) honestly.</td>
+        </tr>
+        <tr>
+          <td class="b">ACPBench (+ Hard)<br><span class="tier t-core">core</span></td>
+          <td>Atomic planning sub-skills: applicability, progression, reachability, action landmarks, justification across 13 domains.<br><span class="muted">Kokel et al., IBM, AAAI 2025</span></td>
+          <td>Domain and question type; the Hard variant uses open-ended generation</td>
+          <td>Exact answers from a planner</td>
+          <td>This tests whether <b>cheap models are reliable at the leaves</b> (claim C4). It also serves as a unit-test bed for the verifier agents: progression and applicability checks are exactly the local checks we need.</td>
+        </tr>
+        <tr>
+          <td class="b">Natural Plan<br><span class="tier t-core">core</span></td>
+          <td>Trip planning, meeting planning and calendar scheduling written in natural language.<br><span class="muted">Zheng et al., Google DeepMind 2024</span></td>
+          <td>Number of cities, people or meetings, plus constraints</td>
+          <td>Exact-match scripts</td>
+          <td>This is constraint-heavy, realistic planning with no PDDL given. It tests the <b>formalizer + constraint propagation</b> lenses end to end. Frontier models score low on its hardest settings.</td>
+        </tr>
+        <tr>
+          <td class="b">TravelPlanner<br><span class="tier t-core">core</span></td>
+          <td>Multi-day travel plans with tool use, commonsense constraints and hard constraints.<br><span class="muted">Xie et al., ICML 2024</span></td>
+          <td>Trip length (3/5/7 days) and number of hard constraints</td>
+          <td>Constraint checker (official evaluator)</td>
+          <td>Its "final pass rate" was very low for frontier agents at release, and the LLM-Modulo paper (Gundawar, Kambhampati et al.) raised it a lot with external critics. This gives a direct head-to-head with the closest prior architecture.</td>
+        </tr>
+        <tr>
+          <td class="b">ZebraLogic<br><span class="tier t-core">core</span></td>
+          <td>Logic grid puzzles, framed as constraint satisfaction problems.<br><span class="muted">Lin et al., 2025</span></td>
+          <td>Grid size (houses × attributes); size of the search space</td>
+          <td>Exact solution check</td>
+          <td>It has a published "curse of complexity" curve, and the constraint-propagation lens is a natural fit. Cheap to run at scale.</td>
+        </tr>
+        <tr>
+          <td class="b">Compositional arithmetic &amp; DP<br><span class="tier t-core">core</span></td>
+          <td>Multi-digit multiplication, Einstein puzzle, DP tasks from "Faith and Fate".<br><span class="muted">Dziri et al., NeurIPS 2023</span></td>
+          <td>Number of digits and DP size, giving a computation-graph depth we can set exactly</td>
+          <td>Exact</td>
+          <td>This is the purest test of claims C1 and C2. The paper explains failures as error compounding over computation graphs, which is exactly what our decomposition attacks. We can draw the theory curve from the toy model next to real data.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Secondary suite: breadth and multi-hop</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Benchmark</th><th>What it tests</th><th>Complexity knob</th><th>Verifier</th><th>Why it's in</th></tr></thead>
+      <tbody>
+        <tr><td class="b">Reasoning Gym<br><span class="tier t-sec">secondary</span></td><td>More than 100 procedurally generated tasks covering algebra, logic, graphs, games and ciphers</td><td>Per-task difficulty parameters; unlimited instances</td><td>Built-in verifiers</td><td>Gives breadth, so we don't over-fit to planning. Unlimited fresh instances means no contamination, and it doubles as an RL environment later.</td></tr>
+        <tr><td class="b">MuSiQue (+ 2Wiki, HotpotQA)<br><span class="tier t-sec">secondary</span></td><td>Multi-hop question answering over paragraphs</td><td>2 to 4 hops; MuSiQue is built so shortcuts don't work</td><td>EM/F1 plus answerability</td><td>Tests the backward-chaining lens on natural language: does breaking a question into single hops beat one-shot answers?</td></tr>
+        <tr><td class="b">BABILong<br><span class="tier t-sec">secondary</span></td><td>bAbI reasoning facts hidden inside very long distractor text</td><td>Context length from 1K to over 1M tokens; number of facts to chain</td><td>Exact</td><td>Tests whether decomposition over <i>context</i> (chunk, extract, compose) lets small-context cheap models beat long-context models.</td></tr>
+        <tr><td class="b">CLUTRR / graph tasks<br><span class="tier t-sec">secondary</span></td><td>Kinship relation chains; shortest path, connectivity and cycles (NLGraph)</td><td>Chain length / graph size</td><td>Exact</td><td>Pure composition: the answer is a composition of relations. Good for testing composition operators on their own.</td></tr>
+        <tr><td class="b">Sudoku-Bench / Countdown / Game of 24<br><span class="tier t-sec">secondary</span></td><td>Search-heavy puzzles with tight constraints</td><td>Grid size, number of operands</td><td>Exact</td><td>Comparable to Tree-of-Thoughts and related work. Separates search ability from decomposition ability.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Stretch: open-ended, frontier-hard</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Benchmark</th><th>What it tests</th><th>Why later</th></tr></thead>
+      <tbody>
+        <tr><td class="b">ARC-AGI-2<br><span class="tier t-str">stretch</span></td><td>Few-shot abstract pattern induction on grids</td><td>Needs lens <i>invention</i> (phase 4): the right decomposition is different for each task. It is also the clearest public "cost per task" leaderboard, which fits the cheap-model story.</td></tr>
+        <tr><td class="b">AIME / HMMT / FrontierMath subsets<br><span class="tier t-str">stretch</span></td><td>Competition and research math with numeric answers</td><td>Answers are exact, but the decomposition is open-ended. Use these to check that the harness helps on unstructured problems and not just puzzles.</td></tr>
+        <tr><td class="b">SWE-bench Verified (subset)<br><span class="tier t-str">stretch</span></td><td>Real repo bug fixing with test verification</td><td>Shows real-world value: tests act as executable verifiers, and repos break down naturally into modules.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="font-size:13.5px;margin-top:10px">Check before running: confirm the current versions, licenses and leaderboard numbers of each benchmark when vendoring. Published scores move fast and should be re-measured under our own harness, not quoted.</p>
+</section>
+
+<section id="exp">
+  <h2>Experimental design</h2>
+  <div class="grid g2">
+    <div class="card"><h3 style="margin-top:0">Baselines (same budget where noted)</h3>
+      <ul class="tight muted">
+        <li><b>B0</b> Cheap model, direct answer</li>
+        <li><b>B1</b> Cheap model, chain-of-thought</li>
+        <li><b>B2</b> Cheap model, self-consistency (majority vote) <i>at equal $ budget</i></li>
+        <li><b>B3</b> Tree-of-Thoughts / best-first search at equal $</li>
+        <li><b>B4</b> LLM-Modulo (generate, then external critics) as the closest prior architecture</li>
+        <li><b>B5</b> Frontier reasoning model alone, as the ceiling reference, with cost recorded</li>
+      </ul>
+    </div>
+    <div class="card"><h3 style="margin-top:0">Metrics</h3>
+      <ul class="tight muted">
+        <li><b>Collapse point N₅₀</b>: the complexity at which accuracy falls below 50%. This is the headline number.</li>
+        <li><b>Accuracy vs. complexity curve</b>, not a single averaged score</li>
+        <li><b>$ per solved instance</b> and tokens per solved instance</li>
+        <li><b>Obfuscation gap</b>: Blocksworld minus Mystery Blocksworld (smaller means more real reasoning)</li>
+        <li><b>Verifier false-accept rate</b>, measured against ground truth</li>
+        <li>Wall-clock time and number of agent calls</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Hypotheses, each falsifiable</h3>
+  <div class="tbl-wrap">
+    <table style="min-width:640px">
+      <thead><tr><th>#</th><th>Hypothesis</th><th>Test</th><th>Kills the idea if…</th></tr></thead>
+      <tbody>
+        <tr><td class="b">H1</td><td>The harness with cheap models pushes N₅₀ well past B1/B2 at equal cost.</td><td>Complexity sweeps on PlanBench, Hanoi and Faith &amp; Fate</td><td>Curves have the same shape and are only shifted by a constant.</td></tr>
+        <tr><td class="b">H2</td><td>Local verification is the main driver (claim C2).</td><td>Ablation: remove verifiers, keep decomposition</td><td>Decomposition alone gives most of the gain.</td></tr>
+        <tr><td class="b">H3</td><td>Multiple lenses beat the best single lens (claim C3).</td><td>Ablation: oracle-best single lens vs. multi-lens at equal $</td><td>Multi-lens ≤ best single lens on most tasks.</td></tr>
+        <tr><td class="b">H4</td><td>Self-organization beats a fixed hand-written pipeline.</td><td>Ablation: replace scheduler and stigmergy with a fixed lens order</td><td>A fixed pipeline matches it within noise.</td></tr>
+        <tr><td class="b">H5</td><td>Cheap swarm ≥ frontier model alone at high complexity, for less $.</td><td>B5 vs. full harness on the top complexity bins</td><td>The frontier model wins at every complexity level, or our cost is higher.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="plan">
+  <h2>Game plan</h2>
+  <p class="sub">The order is: measuring tools first, then baselines, then the smallest version of the idea, and only then self-organization. Each phase has an exit criterion so we know when to stop polishing.</p>
+  <div class="phases" style="margin-top:20px">
+    <div class="phase"><div class="when">Wk 1–2</div><div class="card"><h3>Phase 0 · Eval harness</h3>
+      <ul><li>A single <code>Task</code> interface: <code>generate(complexity, seed)</code>, <code>verify(answer)</code>, <code>render(prompt)</code></li>
+      <li>Vendor PlanBench (with VAL), Hanoi and the other puzzles, ACPBench, ZebraLogic, Faith &amp; Fate tasks, Natural Plan</li>
+      <li>A model gateway with per-call cost accounting, caching, seeds and rate limits; open-weight models on vLLM</li>
+      <li>Results store with trace logging, and a dashboard that plots accuracy vs. complexity</li></ul>
+      <div class="exit">Exit: one command runs any model × task × complexity sweep and plots the curve.</div></div></div>
+    <div class="phase"><div class="when">Wk 2–3</div><div class="card"><h3>Phase 1 · Baselines and collapse curves</h3>
+      <ul><li>Run B0 to B3 for 3 or 4 cheap models and B5 for 1 frontier model across the core suite</li>
+      <li>Measure N₅₀ for each; fit p<sup>n</sup>-style curves to estimate effective per-step reliability</li>
+      <li>Reproduce the published shapes (e.g. Mystery Blocksworld gap, Hanoi collapse) as a sanity check</li></ul>
+      <div class="exit">Exit: a reproduced baseline table and curves, so we know the target.</div></div></div>
+    <div class="phase"><div class="when">Wk 3–6</div><div class="card"><h3>Phase 2 · Fixed-lens decomposition (minimum version)</h3>
+      <ul><li>Problem graph and blackboard; three hand-built lenses: HTN, constraint propagation, change of basis</li>
+      <li>Solver and verifier roles; verifiers use tools (VAL, a Python simulator) where available</li>
+      <li>Static schedule: try lenses in order, retry leaves k times</li></ul>
+      <div class="exit">Exit: H1 and H2 hold on Blocksworld and Faith &amp; Fate (clear shift of N₅₀ at equal $).</div></div></div>
+    <div class="phase"><div class="when">Wk 6–10</div><div class="card"><h3>Phase 3 · Self-organizing swarm</h3>
+      <ul><li>Stigmergic work selection, a bandit budget economy, adaptive split and merge</li>
+      <li>A heterogeneous model pool, with cross-lens agreement used as a verifier</li>
+      <li>Full ablation grid for H3 and H4; extend to Natural Plan, TravelPlanner, ZebraLogic and MuSiQue</li></ul>
+      <div class="exit">Exit: H3 and H4 hold on at least 3 of 5 core benchmarks; H5 holds on at least 1.</div></div></div>
+    <div class="phase"><div class="when">Wk 10+</div><div class="card"><h3>Phase 4 · Lens invention and stretch goals</h3>
+      <ul><li>Lens-inventor agents write new decompositions as programs; an evolutionary loop over the lens library</li>
+      <li>Attack ARC-AGI-2 and AIME, and a SWE-bench subset</li>
+      <li>Distill: train a small model on harness traces to see if the structure can be internalized</li></ul>
+      <div class="exit">Exit: an invented lens beats every hand-made lens on some held-out task family.</div></div></div>
+  </div>
+
+  <h3>Proposed repo layout</h3>
+<pre>semantic/
+  benchmarks/        # Task adapters: generate · verify · render
+    planbench/  puzzles/  acpbench/  natural_plan/  zebra/  faith_fate/ ...
+  harness/
+    graph/           # typed problem graph + blackboard store
+    lenses/          # htn.py, constraints.py, basis_change.py, ...
+    agents/          # solver, verifier, composer, critic, formalizer
+    scheduler/       # stigmergy signals, bandit economy, split/merge
+    models/          # gateway, cost accounting, caching, vLLM client
+  experiments/       # sweep configs (yaml) + results/
+  docs/              # this note, results write-ups</pre>
+</section>
+
+<section id="risks">
+  <h2>Risks and open questions</h2>
+  <div class="grid g2">
+    <div class="card"><h3 style="margin-top:0">Correlated errors</h3><p class="muted">If every cheap model makes the same mistake, voting and retries don't help. Mitigation: mix model families, use tool verifiers, and measure error correlation directly.</p></div>
+    <div class="card"><h3 style="margin-top:0">The formalization bottleneck</h3><p class="muted">Turning natural-language problems into checkable pieces is itself a hard reasoning step, and a single wrong constraint corrupts everything downstream. Mitigation: formalize redundantly, then check that the formalization reproduces the problem's stated facts.</p></div>
+    <div class="card"><h3 style="margin-top:0">Composition can lose information</h3><p class="muted">Some problems aren't decomposable: the pieces interact everywhere, like a chaotic system. We need a test for "this problem isn't decomposable," and should fall back to search there.</p></div>
+    <div class="card"><h3 style="margin-top:0">Cost blow-up</h3><p class="muted">Swarms can burn tokens. Every result is reported at equal $ budget, and the economy has to earn its overhead.</p></div>
+    <div class="card"><h3 style="margin-top:0">Benchmark validity</h3><p class="muted">The rebuttals to the Hanoi paper showed how output-length limits and unsolvable instances can fake a "collapse." Mitigation: use compact answer formats, filter for solvable instances, and report the token budget for every point.</p></div>
+    <div class="card"><h3 style="margin-top:0">Is it reasoning or a planner with extra steps?</h3><p class="muted">If the winning lens is "translate to PDDL and call a solver," that is a valid result (LLM-Modulo), but it's a different claim. Report results both with and without external solvers.</p></div>
+  </div>
+</section>
+
+<footer>
+  Key references: Valmeekam et al., <i>PlanBench</i> (2023) and <i>LLMs Still Can't Plan; Can LRMs?</i> (2024) · Kambhampati et al., <i>LLMs Can't Plan, But Can Help Planning in LLM-Modulo Frameworks</i> (ICML 2024) · Gundawar et al., <i>Robust Planning with LLM-Modulo</i> (2024) · Kokel et al., <i>ACPBench</i> (2025) · Zheng et al., <i>NATURAL PLAN</i> (2024) · Xie et al., <i>TravelPlanner</i> (2024) · Shojaee et al., <i>The Illusion of Thinking</i> (2025) · Dziri et al., <i>Faith and Fate</i> (2023) · Lin et al., <i>ZebraLogic</i> (2025) · Trivedi et al., <i>MuSiQue</i> (2022) · Kuratov et al., <i>BABILong</i> (2024) · Yao et al., <i>Tree of Thoughts</i> (2023) · Chollet et al., <i>ARC-AGI-2</i> (2025).
+</footer>
+</div>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const svg = $('chart'), tip = $('tip'), readout = $('readout');
+  const inputs = ['p', 'k', 'r', 'q'];
+  const NMAX = 200;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const series = [
+    { key: 'mono', name: 'Monolithic', color: '--s1' },
+    { key: 'glob', name: 'Global best-of-k', color: '--s2' },
+    { key: 'loc', name: 'Decomposed + verifier', color: '--s3' }
+  ];
+  let hoverN = null;
+
+  function params() {
+    const o = {};
+    inputs.forEach(id => { o[id] = parseFloat($(id).value); });
+    return o;
+  }
+  // per-step success with local verify + retry
+  function localStep({ p, k, r, q }) {
+    const a = p * r;               // correct & accepted
+    const b = (1 - p) * (1 - q);   // wrong & accepted (false accept)
+    const rej = 1 - a - b;
+    const accCorrect = rej === 1 ? 0 : a * (1 - Math.pow(rej, k)) / (1 - rej);
+    return accCorrect + Math.pow(rej, k) * p; // all rejected: keep last attempt
+  }
+  function compute(P) {
+    const s = localStep(P);
+    const out = [];
+    for (let n = 1; n <= NMAX; n++) {
+      const pn = Math.pow(P.p, n);
+      out.push({ n, mono: pn, glob: 1 - Math.pow(1 - pn, P.k), loc: Math.pow(s, n) });
+    }
+    return out;
+  }
+  function draw() {
+    const P = params();
+    $('o-p').textContent = P.p.toFixed(3);
+    $('o-k').textContent = P.k;
+    $('o-r').textContent = P.r.toFixed(2);
+    $('o-q').textContent = P.q.toFixed(2);
+    const data = compute(P);
+    const W = svg.clientWidth || 600, H = svg.clientHeight || 320;
+    const m = { l: 40, r: 12, t: 10, b: 28 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const x = n => m.l + (n - 1) / (NMAX - 1) * iw;
+    const y = v => m.t + (1 - v) * ih;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    let h = '';
+    [0, .25, .5, .75, 1].forEach(v => {
+      h += `<line class="ax" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/>`;
+      h += `<text class="ax-t" x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${Math.round(v * 100)}%</text>`;
+    });
+    [1, 25, 50, 75, 100, 125, 150, 175, 200].forEach(n => {
+      h += `<text class="ax-t" x="${x(n)}" y="${H - 8}" text-anchor="middle">${n}</text>`;
+    });
+    series.forEach(s => {
+      const d = data.map((pt, i) => (i ? 'L' : 'M') + x(pt.n).toFixed(1) + ' ' + y(pt[s.key]).toFixed(1)).join('');
+      h += `<path d="${d}" fill="none" stroke="${css(s.color)}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    });
+    if (hoverN) {
+      const pt = data[hoverN - 1];
+      h += `<line x1="${x(hoverN)}" x2="${x(hoverN)}" y1="${m.t}" y2="${m.t + ih}" stroke="${css('--text-3')}" stroke-width="1" stroke-dasharray="3 3"/>`;
+      series.forEach(s => {
+        h += `<circle cx="${x(hoverN)}" cy="${y(pt[s.key])}" r="4.5" fill="${css(s.color)}" stroke="${css('--surface')}" stroke-width="2"/>`;
+      });
+    }
+    svg.innerHTML = h;
+    const at = hoverN || 50;
+    const pt = data[at - 1];
+    readout.textContent = `At n = ${at}: monolithic ${(pt.mono * 100).toFixed(1)}% · global best-of-${P.k} ${(pt.glob * 100).toFixed(1)}% · decomposed + verifier ${(pt.loc * 100).toFixed(1)}%  (effective per-step reliability ${(localStep(P) * 100).toFixed(2)}%)`;
+    svg._geom = { m, iw, x, y, data };
+  }
+  function onMove(ev) {
+    const g = svg._geom; if (!g) return;
+    const rect = svg.getBoundingClientRect();
+    const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+    const n = Math.round((px - g.m.l) / g.iw * (NMAX - 1)) + 1;
+    if (n < 1 || n > NMAX) { onLeave(); return; }
+    hoverN = n; draw();
+    const pt = svg._geom.data[n - 1];
+    tip.innerHTML = `<b>n = ${n} steps</b><br>` + series.map(s =>
+      `<i style="background:${css(s.color)}"></i>${s.name}: ${(pt[s.key] * 100).toFixed(1)}%`).join('<br>');
+    tip.style.display = 'block';
+    const frame = svg.parentElement.getBoundingClientRect();
+    let left = rect.left - frame.left + g.x(n) + 12;
+    if (left + tip.offsetWidth > frame.width - 8) left = rect.left - frame.left + g.x(n) - tip.offsetWidth - 12;
+    tip.style.left = left + 'px';
+    tip.style.top = (rect.top - frame.top + 16) + 'px';
+  }
+  function onLeave() { hoverN = null; tip.style.display = 'none'; draw(); }
+  inputs.forEach(id => $(id).addEventListener('input', draw));
+  svg.addEventListener('mousemove', onMove);
+  svg.addEventListener('touchmove', onMove, { passive: true });
+  svg.addEventListener('mouseleave', onLeave);
+  svg.addEventListener('touchend', onLeave);
+  window.addEventListener('resize', draw);
+  if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', draw);
+  draw();
+})();
+</script>
+</body>
+</html>
