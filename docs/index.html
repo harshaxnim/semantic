@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semantic Harness Progress</title>
+<meta name="description" content="Live progress of the multi-lens problem decomposition harness: phases, verifier checks, benchmark sweeps and log.">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1; --surface: #fcfcfb; --surface-2: #f0efec; --border: #dedcd5;
+  --text: #16161a; --text-2: #52514e; --text-3: #7a7974;
+  --accent: #2a78d6; --accent-soft: #e3eefb;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+  --grid: #e6e4de;
+  --good: #1d8a4a; --good-soft: #e2f3e8; --warn: #9a6400; --warn-soft: #fbf0d9; --crit: #c93b3a; --crit-soft: #fbe5e4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #353532;
+    --text: #f4f3ef; --text-2: #c3c2b7; --text-3: #908f87;
+    --accent: #3987e5; --accent-soft: #1b2a3d;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --grid: #2c2c2a;
+    --good: #3fb36d; --good-soft: #17301f; --warn: #e0a42a; --warn-soft: #33270f; --crit: #e66767; --crit-soft: #3a1c1c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #353532;
+  --text: #f4f3ef; --text-2: #c3c2b7; --text-3: #908f87;
+  --accent: #3987e5; --accent-soft: #1b2a3d;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+  --grid: #2c2c2a;
+  --good: #3fb36d; --good-soft: #17301f; --warn: #e0a42a; --warn-soft: #33270f; --crit: #e66767; --crit-soft: #3a1c1c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 80px; }
+header { padding: 48px 0 24px; border-bottom: 1px solid var(--border); }
+.eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 0 0 10px; }
+.eyebrow a { color: var(--accent); text-decoration: none; }
+h1 { font-size: clamp(28px, 4.5vw, 40px); line-height: 1.15; margin: 0 0 12px; letter-spacing: -.02em; }
+h2 { font-size: 22px; margin: 48px 0 6px; }
+h3 { font-size: 16px; margin: 0 0 6px; }
+p { margin: 0 0 12px; }
+.lede { font-size: 18px; color: var(--text-2); max-width: 780px; }
+.muted { color: var(--text-3); }
+.sub { color: var(--text-2); max-width: 780px; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .88em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.stat .v { font-size: 30px; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 13px; color: var(--text-3); }
+
+.phasebar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 18px; }
+.phasebar div { border-radius: 8px; padding: 8px 10px; font-size: 12.5px; background: var(--surface-2); color: var(--text-3); border: 1px solid var(--border); min-width: 0; }
+.phasebar div b { display: block; font-size: 13px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.phasebar .cur { background: var(--accent-soft); border-color: var(--accent); }
+.phasebar .cur b { color: var(--accent); }
+.phasebar .meter { height: 4px; border-radius: 2px; background: var(--border); margin-top: 6px; overflow: hidden; }
+.phasebar .meter i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+@media (max-width: 640px) { .phasebar { grid-template-columns: 1fr; } }
+
+.blocker { border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 10px 0; }
+.blocker b { display: block; }
+.blocker span { color: var(--text-2); font-size: 14.5px; }
+
+ul.items { list-style: none; padding: 0; margin: 8px 0 0; }
+ul.items li { display: flex; gap: 10px; align-items: baseline; padding: 5px 0; font-size: 14.5px; color: var(--text-2); border-bottom: 1px dashed var(--border); }
+ul.items li:last-child { border-bottom: 0; }
+.st { flex: none; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; min-width: 78px; text-align: center; }
+.st-done { background: var(--good-soft); color: var(--good); }
+.st-in-progress { background: var(--accent-soft); color: var(--accent); }
+.st-todo { background: var(--surface-2); color: var(--text-3); }
+.st-blocked { background: var(--crit-soft); color: var(--crit); }
+details.phase { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 10px 0; }
+details.phase summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; list-style: none; }
+details.phase summary::-webkit-details-marker { display: none; }
+details.phase summary::before { content: "▸"; color: var(--text-3); }
+details.phase[open] summary::before { content: "▾"; }
+details.phase .count { font-size: 13px; color: var(--text-3); margin-left: auto; font-variant-numeric: tabular-nums; }
+.exit { font-size: 13.5px; color: var(--text-2); margin-top: 10px; border-left: 3px solid var(--good); padding: 2px 10px; }
+
+.tbl { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 640px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); background: var(--surface-2); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.ok { color: var(--good); font-weight: 600; }
+.bad { color: var(--crit); font-weight: 600; }
+
+.charts { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.chart { position: relative; }
+.chart svg { width: 100%; height: 220px; display: block; touch-action: none; }
+.chart .meta { font-size: 13px; color: var(--text-3); }
+.ax { stroke: var(--grid); stroke-width: 1; }
+.ax-t { fill: var(--text-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--warn-soft); color: var(--warn); margin-left: 6px; vertical-align: 2px; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; box-shadow: 0 4px 14px rgba(0,0,0,.12); display: none; white-space: nowrap; font-variant-numeric: tabular-nums; z-index: 2; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--text-2); margin: 4px 0; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+
+.log { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 18px; }
+.log .entry { position: relative; margin: 0 0 18px; }
+.log .entry::before { content: ""; position: absolute; left: -25px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+.log .date { font-size: 12.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.log p { color: var(--text-2); font-size: 14.5px; margin: 2px 0 0; }
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-3); }
+.err { color: var(--crit); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="eyebrow">Project semantic · progress · <a href="plan.html">design note →</a></p>
+  <h1>Multi-lens decomposition harness</h1>
+  <p class="lede" id="headline">Loading…</p>
+  <p class="muted" id="updated" style="font-size:13.5px"></p>
+  <div class="phasebar" id="phasebar"></div>
+</header>
+
+<section>
+  <h2>At a glance</h2>
+  <div class="grid g4" id="stats" style="margin-top:12px"></div>
+</section>
+
+<section id="blockers-sec">
+  <h2>Blockers</h2>
+  <div id="blockers"></div>
+</section>
+
+<section>
+  <h2>Phases</h2>
+  <p class="sub">Exit criteria come from the <a href="plan.html#plan">game plan</a>. A phase is closed only when its exit criterion is met.</p>
+  <div id="phases"></div>
+</section>
+
+<section>
+  <h2>Verifier soundness</h2>
+  <p class="sub">The thesis rests on verifiers that never accept a wrong answer, so they are tested first. Each reference answer must be accepted. Each mutated answer (one step changed, dropped or swapped) is verified. Blocksworld verdicts are also cross-checked against an independent STRIPS simulator.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Task</th><th>Range</th><th>References accepted</th><th>Mutants rejected</th><th>Cross-check disagreements</th></tr></thead>
+    <tbody id="verifier"></tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Accuracy vs. complexity</h2>
+  <p class="sub">One panel per task. The y-axis is the share of instances solved exactly. Series marked <span class="tag">simulated</span> come from a noisy oracle: the reference answer with each step corrupted with probability 1 − p. They exercise the full pipeline (generate → answer → verify) and should follow p<sup>n</sup>. They are <b>not</b> model results.</p>
+  <div class="charts" id="charts" style="margin-top:14px"></div>
+  <div class="tbl" style="margin-top:14px"><table>
+    <thead><tr><th>Task</th><th>Model</th><th>Instances</th><th>Range</th><th>N₅₀ (collapse point)</th><th>Cost</th></tr></thead>
+    <tbody id="series"></tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Log</h2>
+  <div class="log" id="log" style="margin-top:14px"></div>
+</section>
+
+<footer>
+  Data on this page: <code>progress.json</code>, <code>data/results.json</code>, <code>data/verifier.json</code>, regenerated by <code>python -m semantic.report</code> and deployed by GitHub Actions on every push.
+</footer>
+</div>
+
+<script>
+(async function () {
+  const $ = id => document.getElementById(id);
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const get = async p => { const r = await fetch(p, { cache: 'no-store' }); if (!r.ok) throw new Error(p + ': ' + r.status); return r.json(); };
+  let prog, res, ver;
+  try {
+    [prog, res, ver] = await Promise.all([get('progress.json'), get('data/results.json'), get('data/verifier.json')]);
+  } catch (e) {
+    $('headline').innerHTML = `<span class="err">Could not load data (${esc(e.message)}). Serve this folder over HTTP.</span>`;
+    return;
+  }
+
+  // header
+  $('headline').textContent = prog.headline;
+  $('updated').textContent = 'Last updated ' + prog.updated.replace('T', ' ').replace('Z', ' UTC');
+  $('phasebar').innerHTML = prog.phases.map(p => {
+    const done = p.items.filter(i => i.status === 'done').length;
+    const pct = p.items.length ? Math.round(100 * done / p.items.length) : 0;
+    return `<div class="${p.id === prog.current_phase ? 'cur' : ''}" title="${esc(p.title)}"><b>${esc(p.title.split('·')[0])}</b>${esc(p.window)} · ${pct}%<div class="meter"><i style="width:${pct}%"></i></div></div>`;
+  }).join('');
+
+  // stats
+  const items = prog.phases.flatMap(p => p.items);
+  const real = res.series.filter(s => !s.simulated);
+  const nInst = res.series.reduce((a, s) => a + s.points.reduce((b, p) => b + p.n, 0), 0);
+  const mutants = ver.tasks.reduce((a, t) => a + t.mutants, 0);
+  const falseAcc = ver.tasks.reduce((a, t) => a + (t.mutants - t.mutants_rejected) + (t.references - t.references_accepted) + t.cross_check_disagreements, 0);
+  const stats = [
+    [items.filter(i => i.status === 'done').length + ' / ' + items.length, 'plan items done'],
+    [ver.tasks.length, 'benchmark tasks with verifiers'],
+    [falseAcc === 0 ? '0' : falseAcc, `verifier errors in ${mutants.toLocaleString()} checks`],
+    [real.length ? real.length : '—', `real model sweeps (${nInst.toLocaleString()} instances run in total)`]
+  ];
+  $('stats').innerHTML = stats.map(([v, l]) => `<div class="card stat"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
+
+  // blockers
+  if (!prog.blockers || !prog.blockers.length) $('blockers-sec').style.display = 'none';
+  else $('blockers').innerHTML = prog.blockers.map(b => `<div class="blocker"><b>${esc(b.title)}</b><span>${esc(b.detail)}</span></div>`).join('');
+
+  // phases
+  $('phases').innerHTML = prog.phases.map(p => {
+    const done = p.items.filter(i => i.status === 'done').length;
+    return `<details class="phase" ${p.id === prog.current_phase ? 'open' : ''}>
+      <summary><h3 style="margin:0">${esc(p.title)}</h3><span class="muted" style="font-size:13px">${esc(p.window)}</span><span class="count">${done}/${p.items.length} done</span></summary>
+      <ul class="items">${p.items.map(i => `<li><span class="st st-${i.status}">${i.status.replace('-', ' ')}</span><span>${esc(i.text)}</span></li>`).join('')}</ul>
+      <div class="exit">Exit: ${esc(p.exit)}</div></details>`;
+  }).join('');
+
+  // verifier table
+  $('verifier').innerHTML = ver.tasks.map(t => {
+    const r = t.references_accepted === t.references, m = t.mutants_rejected === t.mutants;
+    return `<tr><td><b>${esc(t.task)}</b><br><span class="muted" style="font-size:13px">${esc(t.description)}</span></td>
+      <td class="num">${t.complexities[0]}–${t.complexities[1]} ${esc(t.complexity_label)}</td>
+      <td class="num ${r ? 'ok' : 'bad'}">${t.references_accepted}/${t.references}</td>
+      <td class="num ${m ? 'ok' : 'bad'}">${t.mutants_rejected}/${t.mutants}</td>
+      <td class="num">${t.cross_checked ? `<span class="${t.cross_check_disagreements ? 'bad' : 'ok'}">${t.cross_check_disagreements}</span> of ${t.cross_checked}` : '<span class="muted">n/a</span>'}</td></tr>`;
+  }).join('');
+
+  // series table
+  $('series').innerHTML = res.series.map(s => {
+    const n = s.points.reduce((a, p) => a + p.n, 0);
+    const cs = s.points.map(p => p.complexity);
+    const cost = s.points.some(p => p.cost_usd === null) ? 'unknown' : '$' + s.points.reduce((a, p) => a + p.cost_usd, 0).toFixed(2);
+    return `<tr><td>${esc(s.task)}</td><td>${esc(s.model)}${s.simulated ? '<span class="tag">simulated</span>' : ''}</td><td class="num">${n}</td>
+      <td class="num">${Math.min(...cs)}–${Math.max(...cs)}</td><td class="num">${s.n50 === null ? '> ' + Math.max(...cs) + ' (no collapse)' : s.n50.toFixed(1)}</td><td class="num">${cost}</td></tr>`;
+  }).join('');
+
+  // charts: one panel per task, series = models, color by fixed model order
+  const colors = ['--s1', '--s2', '--s3'];
+  const models = [...new Set(res.series.map(s => s.model))];
+  const byTask = {};
+  res.series.forEach(s => (byTask[s.task] = byTask[s.task] || []).push(s));
+  const label = Object.fromEntries(ver.tasks.map(t => [t.task, t.complexity_label]));
+  const panels = [];
+  Object.entries(byTask).forEach(([task, ss]) => {
+    ss = ss.filter(s => !(s.model === 'oracle'));
+    if (!ss.length) return;
+    const div = document.createElement('div');
+    div.className = 'card chart';
+    div.innerHTML = `<h3>${esc(task)}</h3>
+      ${ss.length > 1 ? `<div class="legend">${ss.map(s => `<span><i style="background:var(${colors[models.indexOf(s.model) % 3]})"></i>${esc(s.model)}</span>`).join('')}</div>`
+        : `<div class="meta">${esc(ss[0].model)}${ss[0].simulated ? '<span class="tag">simulated</span>' : ''}</div>`}
+      <svg role="img" aria-label="Accuracy versus ${esc(label[task] || 'complexity')} for ${esc(task)}"></svg><div class="tip"></div>`;
+    $('charts').appendChild(div);
+    panels.push({ div, ss, xlabel: label[task] || 'complexity' });
+  });
+  function drawPanel(P, hover) {
+    const svg = P.div.querySelector('svg');
+    const W = svg.clientWidth || 320, H = svg.clientHeight || 220;
+    const m = { l: 36, r: 10, t: 8, b: 32 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const xs = [...new Set(P.ss.flatMap(s => s.points.map(p => p.complexity)))].sort((a, b) => a - b);
+    const x0 = xs[0], x1 = xs[xs.length - 1] === x0 ? x0 + 1 : xs[xs.length - 1];
+    const x = c => m.l + (c - x0) / (x1 - x0) * iw, y = v => m.t + (1 - v) * ih;
+    let h = '';
+    [0, .5, 1].forEach(v => { h += `<line class="ax" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax-t" x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v * 100}%</text>`; });
+    const step = Math.max(1, Math.ceil(xs.length / 6));
+    xs.forEach((c, i) => { if (i % step === 0 || i === xs.length - 1) h += `<text class="ax-t" x="${x(c)}" y="${H - 16}" text-anchor="middle">${c}</text>`; });
+    h += `<text class="ax-t" x="${m.l + iw / 2}" y="${H - 2}" text-anchor="middle">${esc(P.xlabel)}</text>`;
+    P.ss.forEach(s => {
+      const col = css(colors[models.indexOf(s.model) % 3]);
+      h += `<path d="${s.points.map((p, i) => (i ? 'L' : 'M') + x(p.complexity).toFixed(1) + ' ' + y(p.acc).toFixed(1)).join('')}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    });
+    if (hover != null) {
+      h += `<line x1="${x(hover)}" x2="${x(hover)}" y1="${m.t}" y2="${m.t + ih}" stroke="${css('--text-3')}" stroke-dasharray="3 3"/>`;
+      P.ss.forEach(s => { const p = s.points.find(p => p.complexity === hover); if (p) h += `<circle cx="${x(hover)}" cy="${y(p.acc)}" r="4.5" fill="${css(colors[models.indexOf(s.model) % 3])}" stroke="${css('--surface')}" stroke-width="2"/>`; });
+    }
+    svg.innerHTML = h;
+    P.geom = { m, iw, xs, x, x0, x1 };
+  }
+  panels.forEach(P => {
+    const svg = P.div.querySelector('svg'), tip = P.div.querySelector('.tip');
+    const move = ev => {
+      const g = P.geom, r = svg.getBoundingClientRect();
+      const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+      const c = g.x0 + (px - g.m.l) / g.iw * (g.x1 - g.x0);
+      const near = g.xs.reduce((a, b) => Math.abs(b - c) < Math.abs(a - c) ? b : a);
+      drawPanel(P, near);
+      tip.innerHTML = `<b>${near} ${esc(P.xlabel)}</b><br>` + P.ss.map(s => { const p = s.points.find(p => p.complexity === near); return p ? `${esc(s.model)}: ${(p.acc * 100).toFixed(0)}% (${p.correct}/${p.n})` : ''; }).join('<br>');
+      tip.style.display = 'block';
+      const fr = P.div.getBoundingClientRect();
+      let left = r.left - fr.left + g.x(near) + 12;
+      if (left + tip.offsetWidth > fr.width - 6) left = r.left - fr.left + g.x(near) - tip.offsetWidth - 12;
+      tip.style.left = left + 'px'; tip.style.top = (r.top - fr.top + 8) + 'px';
+    };
+    const leave = () => { tip.style.display = 'none'; drawPanel(P); };
+    svg.addEventListener('mousemove', move); svg.addEventListener('touchmove', move, { passive: true });
+    svg.addEventListener('mouseleave', leave); svg.addEventListener('touchend', leave);
+    drawPanel(P);
+  });
+  window.addEventListener('resize', () => panels.forEach(P => drawPanel(P)));
+
+  // log
+  $('log').innerHTML = prog.log.map(e => `<div class="entry"><div class="date">${esc(e.date)}</div><h3>${esc(e.title)}</h3><p>${esc(e.body)}</p></div>`).join('');
+})();
+</script>
+</body>
+</html>

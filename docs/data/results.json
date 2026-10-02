@@ -1,0 +1,604 @@
+{
+ "series": [
+  {
+   "task": "blocksworld",
+   "model": "noisy-oracle:0.98",
+   "simulated": true,
+   "points": [
+    {
+     "complexity": 2,
+     "n": 50,
+     "correct": 49,
+     "acc": 0.98,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 3,
+     "n": 50,
+     "correct": 44,
+     "acc": 0.88,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 4,
+     "n": 50,
+     "correct": 37,
+     "acc": 0.74,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 5,
+     "n": 50,
+     "correct": 40,
+     "acc": 0.8,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 6,
+     "n": 50,
+     "correct": 39,
+     "acc": 0.78,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 7,
+     "n": 50,
+     "correct": 34,
+     "acc": 0.68,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 8,
+     "n": 50,
+     "correct": 32,
+     "acc": 0.64,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 9,
+     "n": 50,
+     "correct": 37,
+     "acc": 0.74,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 10,
+     "n": 50,
+     "correct": 28,
+     "acc": 0.56,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 11,
+     "n": 50,
+     "correct": 38,
+     "acc": 0.76,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 12,
+     "n": 50,
+     "correct": 28,
+     "acc": 0.56,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 13,
+     "n": 50,
+     "correct": 28,
+     "acc": 0.56,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 14,
+     "n": 50,
+     "correct": 33,
+     "acc": 0.66,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 15,
+     "n": 50,
+     "correct": 19,
+     "acc": 0.38,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 16,
+     "n": 50,
+     "correct": 27,
+     "acc": 0.54,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 17,
+     "n": 50,
+     "correct": 21,
+     "acc": 0.42,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 18,
+     "n": 50,
+     "correct": 22,
+     "acc": 0.44,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 19,
+     "n": 50,
+     "correct": 20,
+     "acc": 0.4,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 20,
+     "n": 50,
+     "correct": 22,
+     "acc": 0.44,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    }
+   ],
+   "n50": 14.571428571428571
+  },
+  {
+   "task": "blocksworld-mystery",
+   "model": "noisy-oracle:0.98",
+   "simulated": true,
+   "points": [
+    {
+     "complexity": 2,
+     "n": 50,
+     "correct": 49,
+     "acc": 0.98,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 3,
+     "n": 50,
+     "correct": 48,
+     "acc": 0.96,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 4,
+     "n": 50,
+     "correct": 44,
+     "acc": 0.88,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 5,
+     "n": 50,
+     "correct": 41,
+     "acc": 0.82,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 6,
+     "n": 50,
+     "correct": 38,
+     "acc": 0.76,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 7,
+     "n": 50,
+     "correct": 40,
+     "acc": 0.8,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 8,
+     "n": 50,
+     "correct": 43,
+     "acc": 0.86,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 9,
+     "n": 50,
+     "correct": 34,
+     "acc": 0.68,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 10,
+     "n": 50,
+     "correct": 29,
+     "acc": 0.58,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 11,
+     "n": 50,
+     "correct": 34,
+     "acc": 0.68,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 12,
+     "n": 50,
+     "correct": 30,
+     "acc": 0.6,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 13,
+     "n": 50,
+     "correct": 27,
+     "acc": 0.54,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 14,
+     "n": 50,
+     "correct": 25,
+     "acc": 0.5,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 15,
+     "n": 50,
+     "correct": 26,
+     "acc": 0.52,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 16,
+     "n": 50,
+     "correct": 21,
+     "acc": 0.42,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 17,
+     "n": 50,
+     "correct": 24,
+     "acc": 0.48,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 18,
+     "n": 50,
+     "correct": 16,
+     "acc": 0.32,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 19,
+     "n": 50,
+     "correct": 20,
+     "acc": 0.4,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 20,
+     "n": 50,
+     "correct": 18,
+     "acc": 0.36,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    }
+   ],
+   "n50": 15.2
+  },
+  {
+   "task": "hanoi",
+   "model": "noisy-oracle:0.99",
+   "simulated": true,
+   "points": [
+    {
+     "complexity": 1,
+     "n": 50,
+     "correct": 50,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 2,
+     "n": 50,
+     "correct": 46,
+     "acc": 0.92,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 3,
+     "n": 50,
+     "correct": 48,
+     "acc": 0.96,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 4,
+     "n": 50,
+     "correct": 43,
+     "acc": 0.86,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 5,
+     "n": 50,
+     "correct": 35,
+     "acc": 0.7,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 6,
+     "n": 50,
+     "correct": 24,
+     "acc": 0.48,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 7,
+     "n": 50,
+     "correct": 15,
+     "acc": 0.3,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 8,
+     "n": 50,
+     "correct": 1,
+     "acc": 0.02,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 9,
+     "n": 50,
+     "correct": 0,
+     "acc": 0.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 10,
+     "n": 50,
+     "correct": 0,
+     "acc": 0.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    }
+   ],
+   "n50": 5.909090909090909
+  },
+  {
+   "task": "hanoi",
+   "model": "oracle",
+   "simulated": true,
+   "points": [
+    {
+     "complexity": 1,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 2,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 3,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 4,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 5,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 6,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 7,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 8,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 9,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 10,
+     "n": 5,
+     "correct": 5,
+     "acc": 1.0,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    }
+   ],
+   "n50": null
+  },
+  {
+   "task": "multiplication",
+   "model": "noisy-oracle:0.95",
+   "simulated": true,
+   "points": [
+    {
+     "complexity": 1,
+     "n": 50,
+     "correct": 45,
+     "acc": 0.9,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 2,
+     "n": 50,
+     "correct": 42,
+     "acc": 0.84,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 3,
+     "n": 50,
+     "correct": 41,
+     "acc": 0.82,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 4,
+     "n": 50,
+     "correct": 37,
+     "acc": 0.74,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 5,
+     "n": 50,
+     "correct": 35,
+     "acc": 0.7,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 6,
+     "n": 50,
+     "correct": 26,
+     "acc": 0.52,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 7,
+     "n": 50,
+     "correct": 29,
+     "acc": 0.58,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 8,
+     "n": 50,
+     "correct": 23,
+     "acc": 0.46,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 9,
+     "n": 50,
+     "correct": 19,
+     "acc": 0.38,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 10,
+     "n": 50,
+     "correct": 20,
+     "acc": 0.4,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 11,
+     "n": 50,
+     "correct": 12,
+     "acc": 0.24,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    },
+    {
+     "complexity": 12,
+     "n": 50,
+     "correct": 15,
+     "acc": 0.3,
+     "cost_usd": 0.0,
+     "output_tokens": 0
+    }
+   ],
+   "n50": 7.666666666666667
+  }
+ ]
+}

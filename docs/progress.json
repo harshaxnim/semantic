@@ -1,0 +1,95 @@
+{
+  "updated": "2026-10-02T01:40Z",
+  "current_phase": "phase-0",
+  "headline": "Phase 0 under way: 4 benchmark tasks with exact verifiers, a model gateway and a sweep runner are in. Real model baselines are blocked on API keys.",
+  "blockers": [
+    {
+      "title": "No model API keys in the build environment",
+      "detail": "Baselines (Phase 1) need ANTHROPIC_API_KEY and/or OPENAI_API_KEY (or an OpenAI-compatible endpoint such as OpenRouter or a vLLM server). Add them as environment secrets in the Claude Code environment settings.",
+      "owner": "user"
+    },
+    {
+      "title": "GitHub Pages must be enabled once",
+      "detail": "Settings -> Pages -> Source: GitHub Actions. The repo is private, so Pages needs a plan that supports it (Pro/Team), and the published site is public. Allow branch claude/problem-decomposition-harness-q4dnyc in Settings -> Environments -> github-pages, or merge to main.",
+      "owner": "user"
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase-0",
+      "title": "Phase 0 · Eval harness",
+      "window": "Wk 1–2",
+      "exit": "One command runs any model × task × complexity sweep and plots the curve.",
+      "items": [
+        {"text": "Task interface: generate(complexity, seed) · verify(answer) · steps/corrupt", "status": "done"},
+        {"text": "Tower of Hanoi (Illusion of Thinking) with exact simulator", "status": "done"},
+        {"text": "Blocksworld (PlanBench-style) with exact STRIPS simulation", "status": "done"},
+        {"text": "Mystery Blocksworld (obfuscated names, PlanBench vocabulary)", "status": "done"},
+        {"text": "Multi-digit multiplication (Faith and Fate)", "status": "done"},
+        {"text": "Independent STRIPS checker cross-validates the Blocksworld verifier", "status": "done"},
+        {"text": "Model gateway: Anthropic, OpenAI-compatible, vLLM, disk cache, cost accounting", "status": "done"},
+        {"text": "Sweep runner (resumable, parallel) + report → this site", "status": "done"},
+        {"text": "Progress site on GitHub Pages, deployed by Actions", "status": "in-progress"},
+        {"text": "Vendor official PlanBench instances + VAL", "status": "todo"},
+        {"text": "Checker Jumping, River Crossing puzzles", "status": "todo"},
+        {"text": "ACPBench, ZebraLogic, Natural Plan adapters", "status": "todo"}
+      ]
+    },
+    {
+      "id": "phase-1",
+      "title": "Phase 1 · Baselines & collapse curves",
+      "window": "Wk 2–3",
+      "exit": "Reproduced baseline table and curves; target known.",
+      "items": [
+        {"text": "B0/B1: cheap models, direct and chain-of-thought", "status": "blocked"},
+        {"text": "B2: self-consistency at equal $", "status": "todo"},
+        {"text": "B5: frontier reasoning model reference", "status": "blocked"},
+        {"text": "Fit per-step reliability p from collapse curves", "status": "todo"}
+      ]
+    },
+    {
+      "id": "phase-2",
+      "title": "Phase 2 · Fixed-lens decomposition",
+      "window": "Wk 3–6",
+      "exit": "H1 + H2 hold on Blocksworld and Faith & Fate.",
+      "items": [
+        {"text": "Problem graph + blackboard store", "status": "todo"},
+        {"text": "Lenses: HTN, constraint propagation, change of basis", "status": "todo"},
+        {"text": "Solver / verifier roles with tool verifiers", "status": "todo"}
+      ]
+    },
+    {
+      "id": "phase-3",
+      "title": "Phase 3 · Self-organizing swarm",
+      "window": "Wk 6–10",
+      "exit": "H3 + H4 on ≥3/5 core benchmarks; H5 on ≥1.",
+      "items": [
+        {"text": "Stigmergic work selection, bandit budget economy, adaptive split/merge", "status": "todo"},
+        {"text": "Heterogeneous model pool; cross-lens agreement", "status": "todo"},
+        {"text": "Ablation grid", "status": "todo"}
+      ]
+    },
+    {
+      "id": "phase-4",
+      "title": "Phase 4 · Lens invention & stretch",
+      "window": "Wk 10+",
+      "exit": "An invented lens beats every hand-made lens on a held-out family.",
+      "items": [
+        {"text": "Lens-inventor agents + evolutionary lens library", "status": "todo"},
+        {"text": "ARC-AGI-2, AIME, SWE-bench subset", "status": "todo"}
+      ]
+    }
+  ],
+  "log": [
+    {
+      "date": "2026-10-02",
+      "title": "Phase 0 harness slice + progress site",
+      "body": "Added the semantic Python package: Hanoi, Blocksworld, Mystery Blocksworld and multiplication tasks with exact verifiers; a model gateway; a resumable sweep runner; and a report step that feeds this page. Verifier self-checks: every reference answer accepted, every mutated answer rejected, zero disagreements between the Blocksworld verifier and an independent STRIPS simulator. Simulated noisy-oracle sweeps reproduce the p^n collapse through the real pipeline. 39 tests pass."
+    },
+    {
+      "date": "2026-10-02",
+      "title": "Design note",
+      "body": "Thesis, decomposition lenses, architecture, benchmark selection and game plan published as plan.html."
+    }
+  ]
+}
